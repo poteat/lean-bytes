@@ -14,5 +14,5 @@ jobs:
     uses: poteat/lean-workflows/.github/workflows/docs.yml@main
     with:
       package-name: bytes
-      docs-targets: Bytes:docs
+      docs-targets: Bytes:docs BytesTheorems:docs
       landing-page: Bytes.html

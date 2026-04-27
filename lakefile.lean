@@ -12,6 +12,14 @@ package «bytes» where
 @[default_target]
 lean_lib Bytes where
 
+/-- Opt-in tier: algebraic laws over the `Bytes.*` specs (uses `bv_decide`,
+which adds per-call LRAT axioms). Kept out of the default target so a
+downstream `lake build` of a runtime-only consumer does not pay the
+proof-checking cost. Users opt in via `import Bytes.Theorems`; this
+library exists so `doc-gen4` can document the module. -/
+lean_lib BytesTheorems where
+  roots := #[`Bytes.Theorems]
+
 lean_lib BytesTest where
   globs := #[.submodules `BytesTest]
 
