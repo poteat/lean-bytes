@@ -12,3 +12,6 @@ jobs:
       pages: write
       id-token: write
     uses: poteat/lean-workflows/.github/workflows/docs.yml@main
+    with:
+      package-name: bytes
+      docs-targets: Bytes:docs
