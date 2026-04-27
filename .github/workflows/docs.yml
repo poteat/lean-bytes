@@ -1,0 +1,14 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  docs:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: poteat/lean-workflows/.github/workflows/docs.yml@main
