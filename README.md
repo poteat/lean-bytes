@@ -8,6 +8,8 @@ runtime calls route through `@[extern]` to a C fast path.
 Loads and stores at 8/16/32/64-bit widths in little- and big-endian, plus
 `copy`, `fill`, `equal`, and `compare`.
 
+Docs: [code.lol/lean-bytes/docs](https://code.lol/lean-bytes/docs/).
+
 ## Installation
 
 ```lean

@@ -15,3 +15,4 @@ jobs:
     with:
       package-name: bytes
       docs-targets: Bytes:docs
+      landing-page: Bytes.html
