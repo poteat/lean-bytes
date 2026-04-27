@@ -1,0 +1,14 @@
+name: Bump Lean toolchain
+
+on:
+  schedule:
+    # 18:00 UTC daily. Lean RCs typically publish 02:00–16:00 UTC, so this
+    # catches new releases the same day without overlapping their window.
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  bump:
+    permissions:
+      contents: write
+    uses: poteat/lean-workflows/.github/workflows/bump-toolchain.yml@main
