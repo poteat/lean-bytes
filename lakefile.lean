@@ -5,9 +5,18 @@ open Lake DSL System
 within this package. The header exposes our `@[extern]` C bodies as
 `extern inline __attribute__((gnu_inline, always_inline))`, so callers
 inline the body instead of paying per-call FFI overhead. The external
-symbols still come from `bytes_ffi.c` via `libBytesFFI.a`. -/
+symbols still come from `bytes_ffi.c` via `libBytesFFI.a`.
+
+The paths are anchored at `__dir__` (Lake's built-in for the absolute
+package directory, baked in at lakefile-elaboration time) so they
+resolve correctly whether this package is built standalone or as a
+downstream dep — relative paths would resolve against the consumer's
+cwd and fail to find `bytes_ffi.h`. -/
 package «bytes» where
-  moreLeancArgs := #["-I", "c", "-include", "bytes_ffi.h"]
+  moreLeancArgs := #[
+    "-I", (__dir__ / "c").toString,
+    "-include", (__dir__ / "c" / "bytes_ffi.h").toString
+  ]
 
 @[default_target]
 lean_lib Bytes where
