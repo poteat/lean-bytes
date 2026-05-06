@@ -1,0 +1,16 @@
+name: Auto-hotfix release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.lean'
+      - 'lakefile.*'
+      - 'lean-toolchain'
+      - 'c/**'
+
+jobs:
+  hotfix:
+    permissions:
+      contents: write
+    uses: poteat/lean-workflows/.github/workflows/auto-hotfix.yml@main

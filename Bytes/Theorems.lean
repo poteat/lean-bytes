@@ -67,6 +67,60 @@ theorem get!_set!_ne (a : ByteArray) (i j : Nat) (b : UInt8) (h : i ≠ j) :
     exact Array.getElem_setIfInBounds_ne hj h
   · rw [getElem!_neg _ j (by simpa using hj), getElem!_neg _ j hj]
 
+/-! ### `extract` / `append` algebra (the `get!`-flavour lemmas Std skips)
+
+Stdlib proves the corresponding `[i]`-flavour facts (`getElem_append_left`,
+`extract_append`, `extract_extract`, …), but production code that uses
+`get!`/`extract` directly needs the bang-version bridges below. The clamp
+specialisation `extract_eq_extract_size_of_size_le` and its append corollary
+`extract_append_size_of_le` close the gap: `Std` proves the clamp only for
+`Array` (`extract_of_size_lt` / `extract_eq_self_of_le`); the `ByteArray`
+version was missing. -/
+
+/-- Extract clamps the end index at `.size`. -/
+theorem extract_eq_extract_size_of_size_le {a : ByteArray} {i j : Nat}
+    (h : a.size ≤ j) : a.extract i j = a.extract i a.size := by
+  ext1
+  simp only [data_extract]
+  rcases Nat.lt_or_eq_of_le h with hlt | heq
+  · rw [Array.extract_of_size_lt (by simpa using hlt)]
+    rfl
+  · congr 1; exact heq.symm
+
+/-- Clamp+append fusion: when the start lies in the prefix, extracting through
+    the end of the appended pair gives the prefix tail concatenated with the
+    entire suffix. -/
+theorem extract_append_size_of_le {p extra : ByteArray} {t : Nat}
+    (h : t ≤ p.size) :
+    (p ++ extra).extract t (p ++ extra).size = p.extract t p.size ++ extra := by
+  rw [size_append, extract_append,
+      extract_eq_extract_size_of_size_le (Nat.le_add_right _ _)]
+  have hsub : t - p.size = 0 := Nat.sub_eq_zero_of_le h
+  rw [hsub, Nat.add_sub_cancel_left, extract_zero_size]
+
+/-- `get!` analogue of Std's `getElem_append_left`. -/
+theorem get!_append_left {a b : ByteArray} {i : Nat} (h : i < a.size) :
+    (a ++ b).get! i = a.get! i := by
+  rw [get!_eq_data, get!_eq_data, data_append]
+  have h' : i < a.data.size := h
+  have h'' : i < (a.data ++ b.data).size := by
+    rw [Array.size_append]; exact Nat.lt_add_right _ h'
+  rw [getElem!_pos (a.data ++ b.data) i h'', getElem!_pos a.data i h']
+  exact Array.getElem_append_left h'
+
+/-- `get!` through `extract`: indices map via the start offset. -/
+theorem get!_extract {a : ByteArray} {s e i : Nat}
+    (h_lt : s + i < e) (h_size : s + i < a.size) :
+    (a.extract s e).get! i = a.get! (s + i) := by
+  rw [get!_eq_data, get!_eq_data, data_extract]
+  have h_data_size : a.data.size = a.size := rfl
+  have h_lo : i < (a.data.extract s e).size := by
+    rw [Array.size_extract, h_data_size]; omega
+  have h_hi : s + i < a.data.size := h_size
+  rw [getElem!_pos (a.data.extract s e) i h_lo,
+      getElem!_pos a.data (s + i) h_hi]
+  exact Array.getElem_extract h_lo
+
 end ByteArray
 
 namespace Bytes
